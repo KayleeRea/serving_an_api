@@ -31,7 +31,7 @@ describe 'Make an API' do
                     "href" => make_path(ford)
                   }
                 },
-                "id" =>ford.id,
+                "id" => ford_car.id,
                 "color" => "red",
                 "doors" => 4,
                 "purchased_on" => "1973-10-04"
@@ -45,7 +45,7 @@ describe 'Make an API' do
                     "href" => make_path(chevy)
                   }
                 },
-                "id" => chevy.id,
+                "id" => chevy_car.id,
                 "color" => "blue",
                 "doors" => 2,
                 "purchased_on" => "2012-01-24"
@@ -56,6 +56,43 @@ describe 'Make an API' do
 
       expect(response.code.to_i).to eq 200
       expect(JSON.parse(response.body)).to eq(expected_response)
+    end
+  end
+
+  describe 'GET /cars/:id' do
+    it 'returns a specific cars info' do
+
+      ford = create_make(name: "Ford")
+
+      ford_car = create_car(colors: "red", doors: 4, purchased_on: "1973-10-04", make_id: ford.id)
+
+      get "/cars/#{ford_car.id}", {}, {'Accept' => 'application/json'}
+
+      expected = {
+        "_links"=> {
+        "self"=> {
+        "href"=> car_path(ford_car)
+      },
+        "makes"=> {
+        "href"=> make_path(ford)
+      }
+      },
+        "id"=> ford_car.id,
+        "color"=> "red",
+        "doors"=> 4,
+        "purchased_on"=> "1973-10-04"
+      }
+
+      expect(response.code.to_i).to eq(200)
+      expect(JSON.parse(response.body)).to eq(expected)
+    end
+
+    it 'returns a 404 if the car can not be found' do
+      get "/cars/1000", {}, {'Accept' => 'application/json'}
+
+
+      expect(response.code.to_i).to eq(404)
+      expect(JSON.parse(response.body)).to eq({})
     end
   end
 end
