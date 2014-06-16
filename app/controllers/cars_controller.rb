@@ -11,4 +11,10 @@ class CarsController < ActionController::Base
       render json: {}, status: 404
     end
   end
+
+  def create
+    attributes = JSON.parse(request.body.read)
+    @car = Car.create(attributes)
+    render status: 201
+  end
 end
